@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import SSEStream from './SSEStream';
 
 const wellStyles = { maxWidth: 400, margin: '10px auto' };
 const inputStyle = { margin: '0.5em' };
@@ -14,8 +15,23 @@ class App extends Component {
 
     this.state = {
       min: '',
-      max: ''
+      max: '',
+      numbers: []
     };
+
+    if (SSEStream) {
+      SSEStream.onmessage = event => {
+        const { data } = event;
+        if (data === '') {
+          console.log('SSE ping');
+        } else {
+          const number = parseInt(data);
+          const { numbers } = this.state;
+          numbers.push(number);
+          this.setState({ numbers });
+        }
+      };
+    }
   }
 
   validate() {
@@ -99,7 +115,7 @@ class App extends Component {
           </div>
           <div className="col-6">
             <p>Numbers :</p>
-            <p>{window.state.numbers.join(', ')}</p>
+            <p>{this.state.numbers.join(', ')}</p>
           </div>
         </div>
       </div>
